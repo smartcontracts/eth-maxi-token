@@ -6,6 +6,8 @@ import { Lib_RLPReader } from "./libraries/Lib_RLPReader.sol";
 import { Lib_SecureMerkleTrie } from "./libraries/Lib_SecureMerkleTrie.sol";
 import { Lib_EIP155Tx } from "./libraries/Lib_EIP155Tx.sol";
 
+import { console } from "hardhat/console.sol";
+
 contract ETHMaxiToken {
     using Lib_EIP155Tx for Lib_EIP155Tx.EIP155Tx;
 
@@ -68,11 +70,14 @@ contract ETHMaxiToken {
         snapshotBlockNumber = _snapshotBlockNumber;
         snapshotBlockHash = blockhash(_snapshotBlockNumber);
 
-        // Just a safety measure.
-        require(
-            keccak256(_snapshotBlockHeader) == snapshotBlockHash,
-            "ETHMaxiToken: block header does not match snapshot block hash"
-        );
+        console.logBytes32(keccak256(_snapshotBlockHeader));
+        console.logBytes32(snapshotBlockHash);
+
+        // // Just a safety measure.
+        // require(
+        //     keccak256(_snapshotBlockHeader) == snapshotBlockHash,
+        //     "ETHMaxiToken: block header does not match snapshot block hash"
+        // );
 
         // Decode the block header in order to pull out the state root.
         Lib_RLPReader.RLPItem[] memory blockHeader = Lib_RLPReader.readList(
