@@ -29,7 +29,7 @@ contract ETHMaxiToken {
     // Balance/allowance mappings.
     mapping (address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public allowed;
-    
+
     // Make sure people can't claim more than once.
     mapping (address => bool) public claimed;
 
@@ -135,8 +135,8 @@ contract ETHMaxiToken {
         uint256 chainId = Lib_RLPReader.readUint256(transaction[6]);
 
         require(
-            chainId != 1,
-            "ETHMaxiToken: chain id cannot be 1 (reserved for ethereum)"
+            chainId == 56,
+            "ETHMaxiToken: chain id must be 56 (Binance Smart Chain)"
         );
 
         address owner = ecrecover(
