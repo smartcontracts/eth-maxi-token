@@ -1,0 +1,18 @@
+{
+  "name": "eth-maxi-token",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:smartcontracts/eth-maxi-token.git",
+  "author": "Kelvin Fichter <kelvinfichter@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn build:contracts",
+    "build:contracts": "hardhat compile --show-stack-traces"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "hardhat": "^2.1.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  }
+}
