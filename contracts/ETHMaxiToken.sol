@@ -6,8 +6,6 @@ import { Lib_RLPReader } from "./libraries/Lib_RLPReader.sol";
 import { Lib_SecureMerkleTrie } from "./libraries/Lib_SecureMerkleTrie.sol";
 import { Lib_EIP155Tx } from "./libraries/Lib_EIP155Tx.sol";
 
-import { console } from "hardhat/console.sol";
-
 contract ETHMaxiToken {
     using Lib_EIP155Tx for Lib_EIP155Tx.EIP155Tx;
 
@@ -64,26 +62,12 @@ contract ETHMaxiToken {
     constructor(
         uint256 _lockupPeriod,
         uint256 _snapshotBlockNumber,
-        bytes memory _snapshotBlockHeader
+        bytes32 _snapshotStateRoot
     ) {
         lockupEndTime = block.timestamp + _lockupPeriod;
         snapshotBlockNumber = _snapshotBlockNumber;
         snapshotBlockHash = blockhash(_snapshotBlockNumber);
-
-        console.logBytes32(keccak256(_snapshotBlockHeader));
-        console.logBytes32(snapshotBlockHash);
-
-        // // Just a safety measure.
-        // require(
-        //     keccak256(_snapshotBlockHeader) == snapshotBlockHash,
-        //     "ETHMaxiToken: block header does not match snapshot block hash"
-        // );
-
-        // Decode the block header in order to pull out the state root.
-        Lib_RLPReader.RLPItem[] memory blockHeader = Lib_RLPReader.readList(
-            _snapshotBlockHeader
-        );
-        snapshotStateRoot = Lib_RLPReader.readBytes32(blockHeader[3]);
+        snapshotStateRoot = _snapshotStateRoot;
     }
 
     /**
@@ -144,6 +128,7 @@ contract ETHMaxiToken {
         // Mark as claimed and give out the balance.
         claimed[_owner] = true;
         balances[_owner] = amount;
+        totalSupply += amount;
 
         emit Transfer(address(0), _owner, amount);
         emit Claimed(_owner, amount);
@@ -159,19 +144,30 @@ contract ETHMaxiToken {
      * @return `true` if the slashin' was successful.
      */
     function slash(
-        bytes memory _encodedEIP155Tx
+        bytes memory _encodedEIP155Tx,
+        uint256 _chainId
     )
         public
         returns (
             bool
         )
     {
+        require(
+            _chainId != 1,
+            "ETHMaxiToken: chain ID must not be 1 (ethereum)"
+        );
+
         Lib_EIP155Tx.EIP155Tx memory transaction = Lib_EIP155Tx.decode(
             _encodedEIP155Tx,
-            1 // chain id of ethereum
+            _chainId
         );
 
         address owner = transaction.sender();
+
+        require(
+            msg.sender != owner,
+            "ETHMaxiToken: do you really want to slash yourself?"
+        );
 
         require(
             claimed[owner] == true,
@@ -183,13 +179,20 @@ contract ETHMaxiToken {
             "ETHMaxiToken: address has already been slashed"
         );
 
-        uint256 amount = balances[owner];
+        uint256 balance = balances[owner];
+        uint256 amount = balance / 20;
 
+        // Slash 95% of the balance, give last 5% as a reward to the snitch.
         slashed[owner] = true;
         balances[msg.sender] += amount;
         balances[owner] = 0;
+
+        // Total supply goes down by slashed amount.
+        totalSupply -= balance - amount;
+
         emit Transfer(owner, msg.sender, amount);
-        emit Slashed(owner, msg.sender, amount);
+        emit Transfer(owner, address(0), balance - amount);
+        emit Slashed(owner, msg.sender, balance);
         return true;
     }
 

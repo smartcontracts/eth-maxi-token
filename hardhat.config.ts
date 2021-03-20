@@ -1,6 +1,8 @@
 import { HardhatUserConfig } from 'hardhat/types'
 
+import '@nomiclabs/hardhat-ethers'
 import 'hardhat-deploy'
+import 'hardhat-deploy-ethers'
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -10,7 +12,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       accounts: [
         {
-          privateKey: '0x1111111111111111111111111111111111111111111111111111111111111111',
+          privateKey: '',
           balance: '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
         }
       ],
@@ -18,14 +20,14 @@ const config: HardhatUserConfig = {
       saveDeployments: false,
       tags: ['test', 'local'],
     },
-    kovan: {
-      url: '',
+    goerli: {
+      url: 'https://goerli.infura.io/v3/',
       accounts: [
-        '0x1111111111111111111111111111111111111111111111111111111111111111'
+        ''
       ],
       live: true,
       saveDeployments: true,
-      tags: ['test', 'kovan'],
+      tags: ['test', 'goerli'],
     },
   },
   namedAccounts: {

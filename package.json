@@ -10,12 +10,15 @@
     "build:contracts": "hardhat compile --show-stack-traces"
   },
   "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
     "ethers": "^5.0.32"
   },
   "devDependencies": {
     "@ethereumjs/block": "^3.1.0",
     "hardhat": "^2.1.1",
     "hardhat-deploy": "^0.7.0-beta.48",
+    "hardhat-deploy-ethers": "^0.3.0-beta.7",
+    "rlp": "^2.2.6",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   }
